@@ -1,3 +1,0 @@
-[submodule "01-ecdsa-node"]
-	path = 01-ecdsa-node
-	url = git@github.com:alchemyplatform/ecdsa-node.git
