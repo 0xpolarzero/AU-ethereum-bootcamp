@@ -1,0 +1,17 @@
+[
+  {
+    "address": "0x8AAc50AcB4837F17dDeaf26FebB04432D5e3336e",
+    "privateKey": "2319f7b657079d9672b876fb7468d1ffd272e27a084679fcb64af55a82986bb4",
+    "balance": 100
+  },
+  {
+    "address": "0xB961CF277556a498236Bf032c2C8f23eF507684B",
+    "privateKey": "7dcdec17665291878cca0f5bf9cbbb184f9e1934f61149fb085c1c17993ddbd9",
+    "balance": 50
+  },
+  {
+    "address": "0xB5E6625e74E1D58996368c24D6B6A4BfE23a5967",
+    "privateKey": "e52383c4b33cb4653b1af1befde737e1b0c2362c8c1b07edcb43a9523d4090e1",
+    "balance": 75
+  }
+]

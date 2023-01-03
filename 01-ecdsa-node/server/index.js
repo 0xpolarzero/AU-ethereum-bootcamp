@@ -1,35 +1,88 @@
-const express = require("express");
+const secp = require('ethereum-cryptography/secp256k1');
+const { keccak256 } = require('ethereum-cryptography/keccak');
+const { toHex } = require('ethereum-cryptography/utils');
+const accounts = require('./mock-data');
+
+const express = require('express');
 const app = express();
-const cors = require("cors");
+const cors = require('cors');
 const port = 3042;
 
 app.use(cors());
 app.use(express.json());
 
-const balances = {
-  "0x1": 100,
-  "0x2": 50,
-  "0x3": 75,
-};
+/**
+ * Balances
+ */
 
-app.get("/balance/:address", (req, res) => {
+const balances = {};
+accounts.forEach((account) => {
+  balances[account.address] = account.balance;
+});
+
+app.get('/balance/:address', (req, res) => {
   const { address } = req.params;
   const balance = balances[address] || 0;
+
   res.send({ balance });
 });
 
-app.post("/send", (req, res) => {
-  const { sender, recipient, amount } = req.body;
+/**
+ * Accounts
+ */
 
-  setInitialBalance(sender);
-  setInitialBalance(recipient);
+app.get('/accounts', (req, res) => {
+  const accs = accounts.map((account) => {
+    return {
+      address: account.address,
+      privateKey: account.privateKey,
+      balance: balances[account.address] || 0,
+    };
+  });
 
-  if (balances[sender] < amount) {
-    res.status(400).send({ message: "Not enough funds!" });
-  } else {
-    balances[sender] -= amount;
-    balances[recipient] += amount;
-    res.send({ balance: balances[sender] });
+  res.send(accs);
+});
+
+/**
+ * Transactions
+ */
+
+app.post('/send', (req, res) => {
+  try {
+    const { recipient, amount, signature, recoveryBit } = req.body;
+
+    // Hash message
+    // const msgUint8Array = Uint8Array.from(
+    //   Buffer.from(recipient + amount, 'hex'),
+    // );
+    // const msgHash = toHex(msgUint8Array);
+    const msgHash = keccak256(utf8ToBytes(recipient + amount));
+
+    // Recover public key
+    const publicKey = secp.recoverPublicKey(msgHash, signature, recoveryBit);
+
+    // Get address from public key
+    const senderAddress = `0x${toHex(keccak256(publicKey)).slice(-20)}`;
+
+    // Verify signature
+    const isVerified = secp.verify(signature, msgHash, toHex(publicKey));
+
+    // Init balances
+    setInitialBalance(senderAddress);
+    setInitialBalance(recipient);
+
+    if (!isVerified) {
+      res.status(400).send({ message: 'Invalid signature!' });
+    } else if (balances[senderAddress] < amount) {
+      res.status(400).send({ message: 'Not enough funds!' });
+    } else {
+      balances[senderAddress] -= amount;
+      balances[recipient] += amount;
+
+      res.send({ sender: senderAddress, balance: balances[senderAddress] });
+    }
+  } catch (err) {
+    res.status(400).send({ message: err.message });
   }
 });
 
