@@ -1,12 +1,11 @@
-import secp from 'ethereum-cryptography/secp256k1';
+import * as secp from 'ethereum-cryptography/secp256k1';
 import { keccak256 } from 'ethereum-cryptography/keccak';
-import { utf8ToBytes } from 'ethereum-cryptography/utils';
+import { toHex } from 'ethereum-cryptography/utils';
 
 const hashMessage = (message) => {
-  //   const msgUint8Array = Uint8Array.from(Buffer.from(message, 'hex'));
+  const msgUint8Array = Uint8Array.from(message);
 
-  //   return toHex(msgUint8Array);
-  return keccak256(utf8ToBytes(message));
+  return toHex(msgUint8Array);
 };
 
 const signMessage = async (message, privateKey) => {
@@ -17,7 +16,7 @@ const signMessage = async (message, privateKey) => {
 };
 
 export const generateSignature = async (message, privateKey) => {
-  const { signature, recovery } = await signMessage(message, privateKey);
+  const [signature, recovery] = await signMessage(message, privateKey);
   const signatureHex = toHex(signature);
   const recoveryBit = recovery;
 

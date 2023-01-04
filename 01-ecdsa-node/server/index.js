@@ -49,20 +49,17 @@ app.get('/accounts', (req, res) => {
 
 app.post('/send', (req, res) => {
   try {
-    const { recipient, amount, signature, recoveryBit } = req.body;
+    const { signature, recoveryBit, amount, recipient } = req.body;
 
     // Hash message
-    // const msgUint8Array = Uint8Array.from(
-    //   Buffer.from(recipient + amount, 'hex'),
-    // );
-    // const msgHash = toHex(msgUint8Array);
-    const msgHash = keccak256(utf8ToBytes(recipient + amount));
+    const msgUint8Array = Uint8Array.from([recipient, amount]);
+    const msgHash = toHex(msgUint8Array);
 
     // Recover public key
     const publicKey = secp.recoverPublicKey(msgHash, signature, recoveryBit);
 
     // Get address from public key
-    const senderAddress = `0x${toHex(keccak256(publicKey)).slice(-20)}`;
+    const senderAddress = `0x${toHex(keccak256(publicKey)).slice(-40)}`;
 
     // Verify signature
     const isVerified = secp.verify(signature, msgHash, toHex(publicKey));
