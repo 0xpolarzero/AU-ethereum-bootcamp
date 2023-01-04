@@ -5,13 +5,14 @@ import server from './server';
 function Transfer({ address, setBalance, privateKey, setPrivateKey }) {
   const [sendAmount, setSendAmount] = useState('');
   const [recipient, setRecipient] = useState('');
+  const [nonce, setNonce] = useState(0);
 
   const transfer = async (e) => {
     e.preventDefault();
 
     try {
       const { signatureHex: signature, recoveryBit } = await generateSignature(
-        [recipient, sendAmount],
+        [recipient, sendAmount, nonce],
         privateKey,
       );
 
@@ -22,8 +23,11 @@ function Transfer({ address, setBalance, privateKey, setPrivateKey }) {
         recoveryBit,
         amount: Number(sendAmount),
         recipient,
+        nonce,
       });
       setBalance(balance);
+      // Increment nonce once transaction is sent
+      setNonce(nonce + 1);
       console.log(`Transaction sent from ${sender} to ${recipient}`);
 
       setSendAmount('');

@@ -12,6 +12,11 @@ app.use(cors());
 app.use(express.json());
 
 /**
+ * Nonces
+ */
+let nonces = {};
+
+/**
  * Balances
  */
 
@@ -49,10 +54,10 @@ app.get('/accounts', (req, res) => {
 
 app.post('/send', (req, res) => {
   try {
-    const { signature, recoveryBit, amount, recipient } = req.body;
+    const { signature, recoveryBit, amount, recipient, nonce } = req.body;
 
     // Hash message
-    const msgUint8Array = Uint8Array.from([recipient, amount]);
+    const msgUint8Array = Uint8Array.from([recipient, amount, nonce]);
     const msgHash = toHex(msgUint8Array);
 
     // Recover public key
@@ -67,12 +72,18 @@ app.post('/send', (req, res) => {
     // Init balances
     setInitialBalance(senderAddress);
     setInitialBalance(recipient);
+    setInitialNonce(senderAddress);
 
     if (!isVerified) {
       res.status(400).send({ message: 'Invalid signature!' });
     } else if (balances[senderAddress] < amount) {
       res.status(400).send({ message: 'Not enough funds!' });
+    } else if (nonces[senderAddress].highestNonce > nonce) {
+      res.status(400).send({ message: 'Invalid nonce!' });
     } else {
+      // Increment nonce before sending funds
+      nonces[senderAddress].highestNonce = nonce;
+      // Send funds
       balances[senderAddress] -= amount;
       balances[recipient] += amount;
 
@@ -87,8 +98,14 @@ app.listen(port, () => {
   console.log(`Listening on port ${port}!`);
 });
 
-function setInitialBalance(address) {
+const setInitialBalance = (address) => {
   if (!balances[address]) {
     balances[address] = 0;
   }
-}
+};
+
+const setInitialNonce = (address) => {
+  if (!nonces[address]) {
+    nonces[address] = { highestNonce: 0 };
+  }
+};
