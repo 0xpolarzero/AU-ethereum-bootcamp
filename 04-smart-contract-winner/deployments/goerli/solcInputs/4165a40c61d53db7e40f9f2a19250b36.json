@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Attempt.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.17;\n\ncontract Attempt {\n    error CALL_FAILED();\n\n    address private immutable targetContract;\n\n    constructor(address _targetContract) {\n        targetContract = _targetContract;\n    }\n\n    function attempt() external {\n        bytes memory _data = abi.encodeWithSignature(\"attempt()\");\n        (bool success, ) = targetContract.call(_data);\n\n        if (!success) revert CALL_FAILED();\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

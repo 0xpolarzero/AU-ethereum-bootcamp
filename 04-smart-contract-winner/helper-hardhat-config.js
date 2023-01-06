@@ -1,0 +1,5 @@
+const TARGET_CONTRACT = '0xcF469d3BEB3Fc24cEe979eFf83BE33ed50988502';
+
+module.exports = {
+  TARGET_CONTRACT,
+};
