@@ -6,6 +6,6 @@ Everything related to my progress through the Alchemy University Ethereum Bootca
 
 You can explore the final project at the following links:
 
-- Code: https://github.com/polar0/echoes
+- Code: https://github.com/0xpolarzero/echoes
 
 - Demo: https://echoes.polarzero.xyz
